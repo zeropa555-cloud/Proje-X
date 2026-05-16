@@ -2,87 +2,68 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Hareket Ayarlarý")]
-    public float moveSpeed = 5f;
-    public float crouchSpeed = 2.5f;
+    [Header("Hareket")]
+    public float moveSpeed = 6f;
 
-    [Header("Sürünme Ayarlarý")]
-    public KeyCode crouchKey = KeyCode.LeftControl;
-    public float crouchCameraY = 0.5f;
-    public float crouchColliderHeight = 0.5f;
-    public float transitionSpeed = 10f;
+    [Header("ZÄ±plama")]
+    public float jumpForce = 8f;
+    public float groundCheckDistance = 0.3f;
+    public LayerMask groundMask;
 
     private Rigidbody rb;
-    private CapsuleCollider col;
-    private Transform cameraHolder;
-
-    private Vector3 moveDirection;
-    private float currentSpeed;
-
-    // Baþlangýç deðerleri
-    private float normalColliderHeight;
-    private float normalColliderCenterY;
-    private float normalCameraY;
-    private bool isCrouching = false;
+    private bool isGrounded;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
-        cameraHolder = transform.Find("CameraHolder");
-
-        // Baþlangýç deðerlerini kaydet
-        normalColliderHeight = col.height;
-        normalColliderCenterY = col.center.y;
-        currentSpeed = moveSpeed;
-
-        if (cameraHolder != null)
-            normalCameraY = cameraHolder.localPosition.y;
-
-        rb.constraints = RigidbodyConstraints.FreezeRotationX |
-                         RigidbodyConstraints.FreezeRotationZ;
+        rb.freezeRotation = true; // Fizikle devrilmesin
+        rb.interpolation = RigidbodyInterpolation.Interpolate; // TakÄ±lma olmaz
     }
 
     void Update()
     {
-        // --- SÜRÜNME: Ctrl BASILI TUTUNCA sürün, BIRAKINCA kalk ---
-        // GetKey = basýlý tutunca, GetKeyDown = tek basýþta toggle
-        isCrouching = Input.GetKey(crouchKey);
-
-        // Hedef deðerler
-        float targetHeight = isCrouching ? crouchColliderHeight : normalColliderHeight;
-        float targetCenterY = isCrouching ? (crouchColliderHeight / 2f) : normalColliderCenterY;
-        float targetCamY = isCrouching ? crouchCameraY : normalCameraY;
-        currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
-
-        // --- COLLIDER: Anlýk deðiþtir (fizik patlamasýn diye Lerp YOK) ---
-        // Sürünme/kalkma anýnda TEK SEFER deðiþtir, her frame deðil
-        if (Mathf.Abs(col.height - targetHeight) > 0.01f)
+        // ZÄ±plama
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            col.height = targetHeight;
-            col.center = new Vector3(0, targetCenterY, 0);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // Ã–nceki y hÄ±zÄ±nÄ± sÄ±fÄ±rla
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
-
-        // --- KAMERA: Yumuþak in/kalk ---
-        if (cameraHolder != null)
-        {
-            Vector3 camPos = cameraHolder.localPosition;
-            camPos.y = Mathf.Lerp(camPos.y, targetCamY, transitionSpeed * Time.deltaTime);
-            cameraHolder.localPosition = camPos;
-        }
-
-        // --- HAREKET INPUT ---
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
-        moveDirection = (transform.right * h + transform.forward * v).normalized;
     }
 
     void FixedUpdate()
     {
-        if (moveDirection.magnitude > 0.1f)
-        {
-            Vector3 target = rb.position + moveDirection * currentSpeed * Time.fixedDeltaTime;
-            rb.MovePosition(target);
-        }
+        // Yer kontrolÃ¼
+        CheckGround();
+
+        // WASD input
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+
+        // Karakterin baktÄ±ÄŸÄ± yÃ¶ne gÃ¶re hareket (FPSLook zaten dÃ¶ndÃ¼rÃ¼yor)
+        Vector3 move = (transform.right * h + transform.forward * v).normalized;
+
+        // HÄ±z uygula (sadece x/z, y yerÃ§ekimi/zÄ±plama)
+        Vector3 targetVelocity = move * moveSpeed;
+        targetVelocity.y = rb.linearVelocity.y;
+        rb.linearVelocity = targetVelocity;
+    }
+
+    void CheckGround()
+    {
+        // AyaklarÄ±ndan Ä±ÅŸÄ±n at
+        Vector3 origin = transform.position + Vector3.up * 0.05f;
+        isGrounded = Physics.Raycast(origin, Vector3.down, groundCheckDistance + 0.05f, groundMask);
+
+        // Layer atanmamÄ±ÅŸsa her ÅŸeyi zemin say
+        if (groundMask == 0)
+            isGrounded = Physics.Raycast(origin, Vector3.down, groundCheckDistance + 0.05f);
+    }
+
+    // EditÃ¶rde zemini kontrol etmek iÃ§in Ã§izgi
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Vector3 origin = transform.position + Vector3.up * 0.05f;
+        Gizmos.DrawLine(origin, origin + Vector3.down * (groundCheckDistance + 0.05f));
     }
 }
