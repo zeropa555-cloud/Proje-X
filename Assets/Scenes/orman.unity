@@ -198,7 +198,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1000010847750230, guid: 47e33790ee90932409a8029536a21939, type: 3}
       propertyPath: m_Name
-      value: police
+      value: police (2. sahnede kaybolacak)
       objectReference: {fileID: 0}
     - target: {fileID: 4000011813562294, guid: 47e33790ee90932409a8029536a21939, type: 3}
       propertyPath: m_LocalScale.x
@@ -404,7 +404,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1918621503188698, guid: be0a80f4a4e6e2548920653bce9ad844, type: 3}
       propertyPath: m_Name
-      value: grave5
+      value: grave5 (2. sahnede kaybolacak)
       objectReference: {fileID: 0}
     - target: {fileID: 4681188380609874, guid: be0a80f4a4e6e2548920653bce9ad844, type: 3}
       propertyPath: m_LocalScale.x
@@ -491,7 +491,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -555,7 +555,7 @@ Transform:
   m_GameObject: {fileID: 861964755}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0.71, y: 30.53, z: -1.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -945,7 +945,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1000012898607606, guid: c6fd786275d4cdb4abd8effce60cf681, type: 3}
       propertyPath: m_Name
-      value: ambulance
+      value: ambulance (2. sahnede kaybolacak)
       objectReference: {fileID: 0}
     - target: {fileID: 4000013716203446, guid: c6fd786275d4cdb4abd8effce60cf681, type: 3}
       propertyPath: m_LocalScale.x
