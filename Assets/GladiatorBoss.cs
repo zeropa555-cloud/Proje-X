@@ -100,7 +100,7 @@ public class GladiatorBoss : MonoBehaviour
     IEnumerator PerformCharge()
     {
         currentState = BossState.Charging;
-        rb.velocity = Vector3.zero; // Hucum oncesi kaymayi durdur
+        rb.linearVelocity = Vector3.zero; // Hucum oncesi kaymayi durdur
         
         Vector3 targetPos = player.position;
         LookAtTarget(targetPos);
@@ -114,7 +114,7 @@ public class GladiatorBoss : MonoBehaviour
         isCharging = false; // Hucum hareketini durdur
 
         currentState = BossState.Cooldown;
-        rb.velocity = Vector3.zero; // Carptiktan sonra sekip savrulmasini engeller
+        rb.linearVelocity = Vector3.zero; // Carptiktan sonra sekip savrulmasini engeller
         
         yield return new WaitForSeconds(1.5f); 
 
