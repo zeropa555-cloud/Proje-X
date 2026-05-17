@@ -3108,6 +3108,14 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 153394892}
+    - target: {fileID: 2417870152733634627, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
+      propertyPath: m_Radius
+      value: 0.630805
+      objectReference: {fileID: 0}
+    - target: {fileID: 2417870152733634627, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
+      propertyPath: m_Center.z
+      value: 0.13080502
+      objectReference: {fileID: 0}
     - target: {fileID: 2742642112015231141, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 10.97
