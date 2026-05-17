@@ -71,12 +71,12 @@ public class GameManager : MonoBehaviour
         isTransitioning = true;
 
         // Canı kaydet
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            PlayerHealth ph = player.GetComponent<PlayerHealth>();
-            if (ph != null) playerHealth = ph.GetCurrentHealth();
-        }
+        //GameObject player = GameObject.FindGameObjectWithTag("Player");
+        //if (player != null)
+        //{
+        //    PlayerHealth ph = player.GetComponent<PlayerHealth>();
+        //    if (ph != null) playerHealth = ph.GetCurrentHealth();
+        //}
 
         // Gözün kararır
         if (FadeManager.Instance != null)
@@ -97,15 +97,6 @@ public class GameManager : MonoBehaviour
         yield return null;
 
         // Yeni sahnede player'ı bul ve yerleştir
-        player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            PlayerHealth ph = player.GetComponent<PlayerHealth>();
-            if (ph != null) ph.SetHealth(playerHealth);
-
-            GameObject spawn = GameObject.FindGameObjectWithTag("SpawnPoint");
-            if (spawn != null) player.transform.position = spawn.transform.position;
-        }
 
         // Gözün açılır
         if (FadeManager.Instance != null)

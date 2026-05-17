@@ -10,12 +10,6 @@ public class Timer : MonoBehaviour
     {
         remainingTime = countdownTime;
         isRunning = true;
-
-        // Orman sahnesinde kaydı yükle
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.LoadCurrentScene();
-        }
     }
 
     void Update()
