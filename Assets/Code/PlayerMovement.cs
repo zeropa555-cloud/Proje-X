@@ -2,68 +2,69 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Hareket")]
-    public float moveSpeed = 6f;
+    [Header("Hareket Ayarlar�")]
+    public float moveSpeed = 5f;
+    public float sprintSpeed = 8f;
 
-    [Header("Zıplama")]
-    public float jumpForce = 8f;
-    public float groundCheckDistance = 0.3f;
-    public LayerMask groundMask;
+    [Header("Z�plama Ayarlar�")]
+    public float jumpForce = 7f;
+    public LayerMask groundLayer; // Zemin layer'�
+
+    [Header("Yer Kontrol�")]
+    public Transform groundCheck; // Ayaklar�n alt�na bo� bir GameObject koy
+    public float groundDistance = 0.4f;
 
     private Rigidbody rb;
     private bool isGrounded;
+    private float horizontal;
+    private float vertical;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; // Fizikle devrilmesin
-        rb.interpolation = RigidbodyInterpolation.Interpolate; // Takılma olmaz
+        rb.freezeRotation = true; // Devrilmesin diye
     }
 
     void Update()
     {
-        // Zıplama
+        // Yer kontrol�
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundLayer);
+
+        // Girdi al
+        horizontal = Input.GetAxisRaw("Horizontal");
+        vertical = Input.GetAxisRaw("Vertical");
+
+        // Z�plama
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // Önceki y hızını sıfırla
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
     void FixedUpdate()
     {
-        // Yer kontrolü
-        CheckGround();
+        // Hareket y�n� (kameraya g�re)
+        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        // WASD input
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
+        if (direction.magnitude >= 0.1f)
+        {
+            // Kameran�n bakt��� y�ne g�re hareket
+            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
+            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
-        // Karakterin baktığı yöne göre hareket (FPSLook zaten döndürüyor)
-        Vector3 move = (transform.right * h + transform.forward * v).normalized;
+            // Ko�ma kontrol�
+            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : moveSpeed;
 
-        // Hız uygula (sadece x/z, y yerçekimi/zıplama)
-        Vector3 targetVelocity = move * moveSpeed;
-        targetVelocity.y = rb.linearVelocity.y;
-        rb.linearVelocity = targetVelocity;
-    }
-
-    void CheckGround()
-    {
-        // Ayaklarından ışın at
-        Vector3 origin = transform.position + Vector3.up * 0.05f;
-        isGrounded = Physics.Raycast(origin, Vector3.down, groundCheckDistance + 0.05f, groundMask);
-
-        // Layer atanmamışsa her şeyi zemin say
-        if (groundMask == 0)
-            isGrounded = Physics.Raycast(origin, Vector3.down, groundCheckDistance + 0.05f);
-    }
-
-    // Editörde zemini kontrol etmek için çizgi
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = isGrounded ? Color.green : Color.red;
-        Vector3 origin = transform.position + Vector3.up * 0.05f;
-        Gizmos.DrawLine(origin, origin + Vector3.down * (groundCheckDistance + 0.05f));
+            // H�z uygula (yukar�-a�a�� h�z�n� koru, sadece yatayda hareket et)
+            Vector3 targetVelocity = moveDir * currentSpeed;
+            targetVelocity.y = rb.linearVelocity.y;
+            rb.linearVelocity = targetVelocity;
+        }
+        else
+        {
+            // Durunca yava��a dur (iste�e ba�l�, an�nda durmas�n� istersen bu blo�u sil)
+            Vector3 stopVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, stopVelocity, 0.2f);
+        }
     }
 }
