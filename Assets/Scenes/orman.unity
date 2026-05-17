@@ -1195,7 +1195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b17b8ef7d832de41bed278e63e452f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Timer
-  countdownTime: 60
+  countdownTime: 10
 --- !u!4 &305265399
 Transform:
   m_ObjectHideFlags: 0
@@ -7590,15 +7590,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2742642112015231141, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 174.92952
+      value: 66.4
       objectReference: {fileID: 0}
     - target: {fileID: 2742642112015231141, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7.726766
+      value: 2.62
       objectReference: {fileID: 0}
     - target: {fileID: 2742642112015231141, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -123.9108
+      value: -11.4
       objectReference: {fileID: 0}
     - target: {fileID: 2742642112015231141, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
       propertyPath: m_LocalRotation.w
