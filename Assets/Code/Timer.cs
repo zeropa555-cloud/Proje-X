@@ -10,6 +10,12 @@ public class Timer : MonoBehaviour
     {
         remainingTime = countdownTime;
         isRunning = true;
+
+        // Orman sahnesinde kaydı yükle
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.LoadCurrentScene();
+        }
     }
 
     void Update()
@@ -18,10 +24,9 @@ public class Timer : MonoBehaviour
             return;
 
         remainingTime -= Time.deltaTime;
-        Debug.Log($"Kalan Süre: {remainingTime:F2} saniye");
+
         if (remainingTime <= 0)
         {
-            
             remainingTime = 0;
             isRunning = false;
             OnTimerFinished();
@@ -30,7 +35,7 @@ public class Timer : MonoBehaviour
 
     private void OnTimerFinished()
     {
-        // Sahneler bittiğini işaretle
+        // Sahne bittiğini işaretle
         if (GameManager.Instance != null)
         {
             GameManager.Instance.GoToNextLevel();
