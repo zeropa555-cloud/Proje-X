@@ -10,57 +10,48 @@ public class PlayerHealth : MonoBehaviour
     public Gradient healthGradient;
     public Image fillImage;
 
-    void Awake()
-    {
-        // GameManager tarafından yönetilecek
-    }
-
     void Start()
     {
         currentHealth = maxHealth;
-        UpdateHealthUI();
+        UpdateUI();
     }
 
-    // GameManager'ın canı okuması için
-    public int GetCurrentHealth()
+    public int GetCurrentHealth() => currentHealth;
+
+    public void SetHealth(int hp)
     {
-        return currentHealth;
+        currentHealth = Mathf.Clamp(hp, 0, maxHealth);
+        UpdateUI();
     }
 
-    // GameManager'ın canı geri yüklemesi için
-    public void SetHealth(int health)
+    public void TakeDamage(int dmg)
     {
-        currentHealth = Mathf.Clamp(health, 0, maxHealth);
-        UpdateHealthUI();
-    }
-
-    public void TakeDamage(int damage)
-    {
-        currentHealth -= damage;
+        currentHealth -= dmg;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        UpdateHealthUI();
+        UpdateUI();
 
         if (currentHealth <= 0)
-        {
             Die();
-        }
     }
 
-    void UpdateHealthUI()
+    void Die()
+    {
+        Debug.Log("☠️ Öldün! Chapter 1 başa sarılıyor...");
+
+        // ⬇️ BURASI EKLENDİ - GameManager'a haber ver
+        if (GameManager.Instance != null)
+            GameManager.Instance.ResetChapter();
+        else
+            gameObject.SetActive(false);
+    }
+
+    void UpdateUI()
     {
         if (healthBar != null)
         {
             healthBar.value = currentHealth;
             if (fillImage != null && healthGradient != null)
-            {
                 fillImage.color = healthGradient.Evaluate(healthBar.normalizedValue);
-            }
         }
-    }
-
-    void Die()
-    {
-        Debug.Log("Öldün kanka!");
-        gameObject.SetActive(false);
     }
 }

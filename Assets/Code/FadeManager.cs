@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -6,8 +6,8 @@ public class FadeManager : MonoBehaviour
 {
     public static FadeManager Instance { get; private set; }
 
-    public Image fadeImage;
-    public float fadeDuration = 1f;
+    private Image fadeImage;
+    public float fadeDuration = 1.5f; // Biraz yavaş olsun
 
     void Awake()
     {
@@ -18,12 +18,41 @@ public class FadeManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // ⭐ KENDİ CANVAS'INI VE IMAGE'INI OLUŞTUR
+        CreateFadeCanvas();
     }
 
-    void Start()
+    void CreateFadeCanvas()
     {
-        if (fadeImage != null)
-            fadeImage.color = new Color(0, 0, 0, 0);
+        // Canvas oluştur
+        GameObject canvasGO = new GameObject("FadeCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 999; // En üstte olsun
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+
+        // Image oluştur (siyah perde)
+        GameObject imageGO = new GameObject("FadeImage");
+        imageGO.transform.SetParent(canvasGO.transform, false);
+
+        fadeImage = imageGO.AddComponent<Image>();
+        fadeImage.color = new Color(0, 0, 0, 0); // Başta saydam
+
+        // Tüm ekranı kaplasın
+        RectTransform rt = fadeImage.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        // Bu Canvas da sahneler arası yok olmasın!
+        DontDestroyOnLoad(canvasGO);
     }
 
     public IEnumerator FadeOut()

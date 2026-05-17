@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Timer : MonoBehaviour
 {
-    [SerializeField] private float countdownTime = 60f; // 1 dakika = 60 saniye
+    [SerializeField] private float countdownTime = 60f;
     private float remainingTime;
     private bool isRunning;
 
@@ -14,8 +14,7 @@ public class Timer : MonoBehaviour
 
     void Update()
     {
-        if (!isRunning)
-            return;
+        if (!isRunning) return;
 
         remainingTime -= Time.deltaTime;
 
@@ -29,32 +28,17 @@ public class Timer : MonoBehaviour
 
     private void OnTimerFinished()
     {
-        // Sahne bittiğini işaretle
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GoToNextLevel();
-        }
+        Debug.Log("⏰ Süre doldu!");
+
+        // ⬇️ ŞİMDİLİK KAPALI - İleride açılacak
+        // if (GameManager.Instance != null)
+        //     GameManager.Instance.GoToNextLevel();
     }
 
-    public float GetRemainingTime()
-    {
-        return remainingTime;
-    }
-
-    public bool IsTimerRunning()
-    {
-        return isRunning;
-    }
-
-    public void StopTimer()
-    {
-        isRunning = false;
-    }
-
-    public void ResumeTimer()
-    {
-        isRunning = true;
-    }
+    public float GetRemainingTime() => remainingTime;
+    public bool IsTimerRunning() => isRunning;
+    public void StopTimer() => isRunning = false;
+    public void ResumeTimer() => isRunning = true;
 
     public void ResetTimer()
     {

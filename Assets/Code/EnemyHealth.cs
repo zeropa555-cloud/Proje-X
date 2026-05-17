@@ -14,15 +14,9 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(int dmg)
     {
-        Debug.Log("💔 TakeDamage çağrıldı! Hasar: " + dmg + " | Obje: " + gameObject.name);
-
         if (currentHealth <= 0) return;
-
         currentHealth -= dmg;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
-        if (anim != null)
-            anim.SetTrigger("Hit");
+        anim.SetTrigger("Hit");
 
         if (currentHealth <= 0)
             Die();
@@ -41,9 +35,17 @@ public class EnemyHealth : MonoBehaviour
         if (anim != null)
             anim.SetTrigger("Die");
 
-        // Sahne geçişi
-        if (GameManager.Instance != null)
-            GameManager.Instance.GoToNextLevel();
+        // ⬇️ BURASI EKLENDİ - ArenaManager'a haber ver!
+        ArenaManager arena = FindObjectOfType<ArenaManager>();
+        if (arena != null)
+        {
+            arena.OnEnemyDied(gameObject);
+            Debug.Log("📢 ArenaManager'a haber verildi!");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ ArenaManager bulunamadı!");
+        }
 
         Destroy(gameObject, 3f);
     }

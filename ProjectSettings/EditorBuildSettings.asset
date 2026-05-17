@@ -12,10 +12,10 @@ EditorBuildSettings:
     path: Assets/Scenes/orman.unity
     guid: 93644f1c50fa11f458718528ec35313e
   - enabled: 1
-    path: Assets/Scenes/Collesium.unity
+    path: Assets/Scenes/Arena.unity
     guid: 7d95a431152765d4d808e9c6d5ff75e9
   - enabled: 1
-    path: Assets/Scenes/ClassRoom.unity
+    path: Assets/Scenes/Okul.unity
     guid: a2b47e903a3c23845bdb841cf26023e2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
