@@ -13,18 +13,13 @@ public class EnemyHealth : MonoBehaviour
         currentHealth = maxHealth;
         anim = GetComponent < Animator > ();
         enemyAI = GetComponent < EnemyAI > ();
-        Debug.Log("👹 Düşman canı: " + currentHealth);
     }
 
     public void TakeDamage(int damage)
     {
-        Debug.Log("💔 EnemyHealth.TakeDamage çağrıldı! Hasar: " + damage);
-
         if (currentHealth <= 0) return;
 
         currentHealth -= damage;
-        Debug.Log("👹 Kalan can: " + currentHealth);
-
         anim.SetTrigger("Hit");
 
         if (currentHealth <= 0)
@@ -35,9 +30,18 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("💀 Düşman öldü!");
         enemyAI?.Die();
         anim.SetTrigger("Die");
+
+        // DÜŞMAN ÖLÜNCE OTOMATİK SAHNE DEĞİŞİMİ!
+        Debug.Log("☠️ Düşman öldü! Yeni sahneye geçiliyor...");
+        GameManager.Instance.GoToNextLevel();
+
         Destroy(gameObject, 3f);
+    }
+
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
     }
 }

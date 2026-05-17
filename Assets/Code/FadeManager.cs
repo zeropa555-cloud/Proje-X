@@ -6,9 +6,8 @@ public class FadeManager : MonoBehaviour
 {
     public static FadeManager Instance { get; private set; }
 
-    [Header("Fade Ayarlarý")]
-    public Image fadeImage; // Siyah UI Image (Inspector'dan sürükle)
-    public float fadeDuration = 1f; // Kararma/açýlma süresi (saniye)
+    public Image fadeImage;
+    public float fadeDuration = 1f;
 
     void Awake()
     {
@@ -17,53 +16,39 @@ public class FadeManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
-        // Baþlangýçta tamamen saydam olsun
         if (fadeImage != null)
-        {
             fadeImage.color = new Color(0, 0, 0, 0);
-        }
     }
 
-    // Ekran kararýr (Fade Out)
     public IEnumerator FadeOut()
     {
         if (fadeImage == null) yield break;
-
-        float elapsed = 0f;
-
-        while (elapsed < fadeDuration)
+        float t = 0f;
+        while (t < fadeDuration)
         {
-            elapsed += Time.deltaTime;
-            float alpha = Mathf.Clamp01(elapsed / fadeDuration);
-            fadeImage.color = new Color(0, 0, 0, alpha);
+            t += Time.deltaTime;
+            fadeImage.color = new Color(0, 0, 0, Mathf.Clamp01(t / fadeDuration));
             yield return null;
         }
-
-        fadeImage.color = new Color(0, 0, 0, 1); // Tam siyah
+        fadeImage.color = Color.black;
     }
 
-    // Ekran açýlýr (Fade In)
     public IEnumerator FadeIn()
     {
         if (fadeImage == null) yield break;
-
-        float elapsed = 0f;
-
-        while (elapsed < fadeDuration)
+        float t = 0f;
+        while (t < fadeDuration)
         {
-            elapsed += Time.deltaTime;
-            float alpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
-            fadeImage.color = new Color(0, 0, 0, alpha);
+            t += Time.deltaTime;
+            fadeImage.color = new Color(0, 0, 0, 1f - Mathf.Clamp01(t / fadeDuration));
             yield return null;
         }
-
-        fadeImage.color = new Color(0, 0, 0, 0); // Tam saydam
+        fadeImage.color = new Color(0, 0, 0, 0);
     }
 }

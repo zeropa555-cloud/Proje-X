@@ -6,13 +6,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("Oyuncu Verileri")]
     public int playerHealth = 100;
-    public int playerScore = 0;
-
-    [Header("Sahne Sistemi")]
+    public string[] levelNames = { "Level1", "Level2" };
     public int currentLevel = 0;
-    public string[] levelNames = { "Level1", "Level2", "Level3", "Level4" };
 
     void Awake()
     {
@@ -21,20 +17,18 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
-    // Bir sonraki sahneye geç (Fade'li!)
     public void GoToNextLevel()
     {
-        StartCoroutine(TransitionToNextLevel());
+        StartCoroutine(ChangeScene());
     }
 
-    IEnumerator TransitionToNextLevel()
+    IEnumerator ChangeScene()
     {
-        // 1. Önce canı kaydet
+        // Canı kaydet
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -42,52 +36,29 @@ public class GameManager : MonoBehaviour
             if (ph != null) playerHealth = ph.GetCurrentHealth();
         }
 
-        // 2. Ekran kararsın (Fade Out) - "Gözümüz karalır"
+        // Gözün kararır
         if (FadeManager.Instance != null)
-        {
-            yield return StartCoroutine(FadeManager.Instance.FadeOut());
-        }
+            yield return FadeManager.Instance.FadeOut();
 
-        // 3. Sıradaki sahneye geç
+        // Sahne değiştir
         currentLevel++;
-        if (currentLevel >= levelNames.Length)
-        {
-            currentLevel = 0;
-        }
-
+        if (currentLevel >= levelNames.Length) currentLevel = 0;
         SceneManager.LoadScene(levelNames[currentLevel]);
-
-        // 4. Sahne yüklendikten sonra 1 frame bekle
         yield return null;
 
-        // 5. Oyuncuyu yerleştir
+        // Yeni sahnede player'ı bul ve yerleştir
         player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            SpawnPlayer(player);
+            PlayerHealth ph = player.GetComponent<PlayerHealth>();
+            if (ph != null) ph.SetHealth(playerHealth);
+
+            GameObject spawn = GameObject.FindGameObjectWithTag("SpawnPoint");
+            if (spawn != null) player.transform.position = spawn.transform.position;
         }
 
-        // 6. Ekran açılsın (Fade In) - "Gözümüz açılır"
+        // Gözün açılır
         if (FadeManager.Instance != null)
-        {
-            yield return StartCoroutine(FadeManager.Instance.FadeIn());
-        }
-    }
-
-    public void SpawnPlayer(GameObject player)
-    {
-        if (player == null) return;
-
-        PlayerHealth ph = player.GetComponent<PlayerHealth>();
-        if (ph != null)
-        {
-            ph.SetHealth(playerHealth);
-        }
-
-        GameObject spawn = GameObject.FindGameObjectWithTag("SpawnPoint");
-        if (spawn != null)
-        {
-            player.transform.position = spawn.transform.position;
-        }
+            yield return FadeManager.Instance.FadeIn();
     }
 }
