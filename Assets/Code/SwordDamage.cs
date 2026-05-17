@@ -3,39 +3,38 @@
 public class SwordDamage : MonoBehaviour
 {
     public int damage = 25;
-    public float hitCooldown = 0.5f; // 0.5 saniyede 1 vurur
+    public float hitCooldown = 0.5f;
+    private float lastHit = -999f;
 
-    private float lastHitTime = -999f;
+    private bool canDealDamage = false; // BAŞTA KAPALI!
+
+    // PlayerCombat'tan çağrılacak - Animasyonun vurduğu anında açılır
+    public void EnableDamage()
+    {
+        canDealDamage = true;
+        Debug.Log("🟢 Kılıç hasar AÇIK");
+    }
+
+    public void DisableDamage()
+    {
+        canDealDamage = false;
+        Debug.Log("🔴 Kılıç hasar KAPALI");
+    }
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("⚔️ Kılıç değdi: " + other.name + " | Tag: " + other.tag);
+        // ⛔ Animasyon oynamıyorsa hasar YOK!
+        if (!canDealDamage) return;
 
-        // Sadece Enemy tag'ine sahip objelere vur
-        if (!other.CompareTag("Enemy"))
-        {
-            Debug.Log("❌ Enemy değil");
-            return;
-        }
+        if (!other.CompareTag("Enemy")) return;
+        if (Time.time < lastHit + hitCooldown) return;
 
-        // Cooldown - çok hızlı vurmasın
-        if (Time.time < lastHitTime + hitCooldown)
-        {
-            Debug.Log("⏳ Cooldown aktif");
-            return;
-        }
-
-        // Hasar ver
         EnemyHealth eh = other.GetComponent < EnemyHealth > ();
         if (eh != null)
         {
             eh.TakeDamage(damage);
-            lastHitTime = Time.time;
-            Debug.Log("💥 DÜŞMANA HASAR VERİLDİ: " + damage);
-        }
-        else
-        {
-            Debug.LogError("❌ EnemyHealth yok! Düşmanın ana objesinde mi?");
+            lastHit = Time.time;
+            Debug.Log("⚔️ Hasar verildi: " + damage);
         }
     }
 }

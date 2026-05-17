@@ -193,6 +193,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: beb84cfb2e8e0624cafae6cffe89c2b2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 114301770}
+    - targetCorrespondingSourceObject: {fileID: -2876843712848608940, guid: beb84cfb2e8e0624cafae6cffe89c2b2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 831207228}
+    - targetCorrespondingSourceObject: {fileID: -2876843712848608940, guid: beb84cfb2e8e0624cafae6cffe89c2b2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 831207227}
   m_SourcePrefab: {fileID: 100100000, guid: beb84cfb2e8e0624cafae6cffe89c2b2, type: 3}
 --- !u!1 &114301769 stripped
 GameObject:
@@ -1530,6 +1536,10 @@ PrefabInstance:
       value: King
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: cd3abd1bd8f99e343a23e3d87f4c850a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cd3abd1bd8f99e343a23e3d87f4c850a, type: 3}
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
@@ -2205,6 +2215,47 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &831207223 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -2876843712848608940, guid: beb84cfb2e8e0624cafae6cffe89c2b2, type: 3}
+  m_PrefabInstance: {fileID: 114301768}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &831207227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 831207223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e28233b8e676a640ae7aac978505d8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyWeaponDamage
+  damage: 15
+  hitCooldown: 1
+--- !u!64 &831207228
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 831207223}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4686849319519084627, guid: beb84cfb2e8e0624cafae6cffe89c2b2, type: 3}
 --- !u!1 &905150544
 GameObject:
   m_ObjectHideFlags: 0
@@ -2885,6 +2936,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 812413550163545042, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
+      propertyPath: swordDamage
+      value: 
+      objectReference: {fileID: 1732785519}
     - target: {fileID: 1956880925948245917, guid: ea681d41781aa49468b205eab9db75fd, type: 3}
       propertyPath: fillImage
       value: 
