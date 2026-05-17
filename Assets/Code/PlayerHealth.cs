@@ -12,8 +12,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Awake()
     {
-        // SAHNE DEĞİŞSE BİLE YOK OLMA! (GameManager seni bulabilsin diye)
-        DontDestroyOnLoad(gameObject);
+        // GameManager tarafından yönetilecek
     }
 
     void Start()
