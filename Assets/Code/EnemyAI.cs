@@ -9,42 +9,44 @@ public class EnemyAI : MonoBehaviour
     private Animator anim;
 
     public float chaseRange = 12f;
-    public float attackRange = 2f;
+    public float attackRange = 2.5f;
     public float attackCooldown = 2f;
-    public float damageWindowDuration = 0.5f; // Hasar verebileceği süre (saniye)
+    public int damage = 15;
+    public float damageWindow = 0.5f; // Hasar verebileceği süre
 
-    private float lastAttackTime;
+    private float lastAttack;
     private bool isDead = false;
 
+    // BU DEĞİŞKEN EKLENDİ!
     [HideInInspector]
     public bool canDealDamage = false;
 
     void Start()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) player = playerObj.transform;
-
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         agent = GetComponent < NavMeshAgent > ();
         anim = GetComponent < Animator > ();
     }
 
     void Update()
     {
-        if (isDead || player == null) return;
+        if (isDead || player == null || agent == null) return;
 
-        float distance = Vector3.Distance(transform.position, player.position);
+        float d = Vector3.Distance(transform.position, player.position);
 
-        if (distance <= attackRange)
+        if (d <= attackRange)
         {
             agent.isStopped = true;
             anim.SetBool("IsWalking", false);
 
-            if (Time.time >= lastAttackTime + attackCooldown)
+            if (Time.time >= lastAttack + attackCooldown)
             {
-                Attack();
+                lastAttack = Time.time;
+                anim.SetTrigger("Attack");
+                StartCoroutine(AutoDamageWindow()); // Animasyon event unutursan diye güvenlik
             }
         }
-        else if (distance <= chaseRange)
+        else if (d <= chaseRange)
         {
             agent.isStopped = false;
             agent.SetDestination(player.position);
@@ -57,36 +59,26 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    void Attack()
-    {
-        lastAttackTime = Time.time;
-        anim.SetTrigger("Attack");
-        StartCoroutine(AutoDamageWindow());
-    }
-
-    // Animasyon event yerine otomatik hasar penceresi (güvenlik)
+    // Animasyon event olarak da kullanabilirsin, ama unutursan coroutine devrede
     IEnumerator AutoDamageWindow()
     {
-        yield return new WaitForSeconds(0.2f); // Saldırı başlasın diye bekle
+        yield return new WaitForSeconds(0.3f); // Saldırı başlasın
         canDealDamage = true;
-        Debug.Log("🟢 Düşman hasar verebilir!");
-
-        yield return new WaitForSeconds(damageWindowDuration);
+        yield return new WaitForSeconds(damageWindow);
         canDealDamage = false;
-        Debug.Log("🔴 Düşman hasar veremez!");
     }
 
-    // BU 2 METODU YİNE DE ANİMASYON EVENT OLARAK EKLERSEN DAHA KESİN OLUR:
-    public void EnableWeaponDamage()
-    {
-        canDealDamage = true;
-        Debug.Log("🟢 Event: EnableWeaponDamage");
-    }
+    // BU METODU ANİMASYON EVENT OLARAK DA EKLEYEBİLİRSİN
+    public void EnableWeaponDamage() => canDealDamage = true;
+    public void DisableWeaponDamage() => canDealDamage = false;
 
-    public void DisableWeaponDamage()
+    // Eski adla da çağrılabilsin (animasyon event uyumluluğu)
+    public void DealDamageToPlayer()
     {
-        canDealDamage = false;
-        Debug.Log("🔴 Event: DisableWeaponDamage");
+        if (isDead || player == null) return;
+        float d = Vector3.Distance(transform.position, player.position);
+        if (d <= attackRange + 0.5f)
+            player.GetComponent<PlayerHealth>()?.TakeDamage(damage);
     }
 
     public void Die()

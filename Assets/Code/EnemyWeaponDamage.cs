@@ -3,41 +3,31 @@
 public class EnemyWeaponDamage : MonoBehaviour
 {
     public int damage = 15;
-    public EnemyAI enemyAI; // Inspector'dan düşmanın ana objesini sürükle!
+    public float hitCooldown = 1f;
+    private float lastHit = -999f;
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("⚔️ Silah değdi: " + other.name + " | Tag: " + other.tag);
+        if (!other.CompareTag("Player")) return;
+        if (Time.time < lastHit + hitCooldown) return;
 
-        if (other.CompareTag("Player"))
+        // Üst objede EnemyAI veya EnemyAI2 ara
+        bool canHit = false;
+
+        EnemyAI ai1 = GetComponentInParent < EnemyAI > ();
+        EnemyAI2 ai2 = GetComponentInParent < EnemyAI2 > ();
+
+        if (ai1 != null && ai1.canDealDamage) canHit = true;
+        if (ai2 != null && ai2.canDealDamage) canHit = true;
+
+        if (!canHit) return;
+
+        PlayerHealth ph = other.GetComponent<PlayerHealth>();
+        if (ph != null)
         {
-            Debug.Log("🎯 Player bulundu!");
-
-            if (enemyAI == null)
-            {
-                Debug.LogError("❌ enemyAI NULL! Inspector'dan düşmanı bağlamadın!");
-                return;
-            }
-
-            Debug.Log("🔍 canDealDamage değeri: " + enemyAI.canDealDamage);
-
-            if (enemyAI.canDealDamage)
-            {
-                PlayerHealth ph = other.GetComponent<PlayerHealth>();
-                if (ph != null)
-                {
-                    ph.TakeDamage(damage);
-                    Debug.Log("💥 HASAR VERİLDİ: " + damage);
-                }
-                else
-                {
-                    Debug.LogError("❌ PlayerHealth bulunamadı! Player objesinde yok!");
-                }
-            }
-            else
-            {
-                Debug.Log("⛔ canDealDamage FALSE! Animasyon event eklenmemiş olabilir.");
-            }
+            ph.TakeDamage(damage);
+            lastHit = Time.time;
+            Debug.Log("💥 Düşman vurdu!");
         }
     }
 }
