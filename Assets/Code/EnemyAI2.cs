@@ -9,23 +9,20 @@ public class EnemyAI2 : MonoBehaviour
     private Animator anim;
     private EnemyHealth health;
 
-    [Header("Takip ve Saldırı")]
-    public float chaseRange = 20f;      // Daha uzaktan fark eder
-    public float attackRange = 3f;       // Biraz daha uzun menzil
-    public float attackCooldown = 1.2f; // Daha hızlı saldırır
-    public int damage = 20;              // Daha güçlü vurur
+    public float chaseRange = 20f;
+    public float attackRange = 2.5f;
+    public float attackCooldown = 1.5f;
+    public int damage = 20;
 
-    [Header("Hareket Hızları")]
     public float walkSpeed = 4f;
     public float runSpeed = 9f;
 
-    [Header("Rage Modu (Can Azalınca)")]
-    public int rageThreshold = 25;       // Can 25'in altına düşünce delirir
-    public float rageAttackSpeed = 0.7f; // Rage'de daha hızlı vurur
-    public float rageRunSpeed = 12f;     // Rage'de daha hızlı koşar
-    public int rageDamage = 30;          // Rage'de daha çok hasar
+    public int rageThreshold = 25;
+    public float rageAttackSpeed = 0.8f;
+    public float rageRunSpeed = 12f;
+    public int rageDamage = 30;
 
-    private float lastAttack;
+    private float lastAttack = -999f;
     private bool isDead = false;
     private bool isRage = false;
 
@@ -35,9 +32,9 @@ public class EnemyAI2 : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        agent = GetComponent < NavMeshAgent > ();
-        anim = GetComponent < Animator > ();
-        health = GetComponent < EnemyHealth > ();
+        agent = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>();
+        health = GetComponent<EnemyHealth>();
     }
 
     void Update()
@@ -46,13 +43,11 @@ public class EnemyAI2 : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // RAGE MODU KONTROLÜ - Can azalınca agresifleş!
         if (!isRage && health != null && health.GetCurrentHealth() <= rageThreshold)
         {
             EnterRage();
         }
 
-        // Saldırı mesafesindeyse
         if (distance <= attackRange)
         {
             agent.isStopped = true;
@@ -61,16 +56,17 @@ public class EnemyAI2 : MonoBehaviour
 
             if (Time.time >= lastAttack + attackCooldown)
             {
-                Attack();
+                lastAttack = Time.time;
+                anim.ResetTrigger("Attack");
+                anim.SetTrigger("Attack");
+                StartCoroutine(DamageWindow());
             }
         }
-        // Takip mesafesindeyse
         else if (distance <= chaseRange)
         {
             agent.isStopped = false;
             agent.SetDestination(player.position);
 
-            // Uzaktaysa KOŞ, yakındaysa YÜRÜ
             if (distance > 6f)
             {
                 agent.speed = runSpeed;
@@ -84,12 +80,23 @@ public class EnemyAI2 : MonoBehaviour
                 anim.SetBool("IsRunning", false);
             }
         }
-        // Çok uzaktaysa bekle
         else
         {
             agent.isStopped = true;
             anim.SetBool("IsWalking", false);
             anim.SetBool("IsRunning", false);
+        }
+
+        // ⬇️ YENİ: Düşman her zaman oyuncuya dönsün!
+        if (player != null && !isDead)
+        {
+            Vector3 dir = player.position - transform.position;
+            dir.y = 0;
+            if (dir != Vector3.zero)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 8f);
+            }
         }
     }
 
@@ -99,26 +106,18 @@ public class EnemyAI2 : MonoBehaviour
         attackCooldown = rageAttackSpeed;
         runSpeed = rageRunSpeed;
         damage = rageDamage;
-        anim.SetTrigger("Hit"); // Rage animasyonu tetikler (opsiyonel)
-        Debug.Log("👹 Düşman RAGE moduna girdi! Daha hızlı ve güçlü!");
+        anim.SetTrigger("Hit");
+        Debug.Log("👹 RAGE MODU!");
     }
 
-    void Attack()
-    {
-        lastAttack = Time.time;
-        anim.SetTrigger("Attack");
-        StartCoroutine(AutoDamageWindow());
-    }
-
-    IEnumerator AutoDamageWindow()
+    IEnumerator DamageWindow()
     {
         yield return new WaitForSeconds(0.25f);
         canDealDamage = true;
-        yield return new WaitForSeconds(0.4f);
+        yield return new WaitForSeconds(0.35f);
         canDealDamage = false;
     }
 
-    // Animasyon Event olarak da kullanılabilir
     public void EnableWeaponDamage() => canDealDamage = true;
     public void DisableWeaponDamage() => canDealDamage = false;
 
@@ -126,6 +125,6 @@ public class EnemyAI2 : MonoBehaviour
     {
         isDead = true;
         agent.isStopped = true;
-        GetComponent < Collider > ().enabled = false;
+        GetComponent<Collider>().enabled = false;
     }
 }

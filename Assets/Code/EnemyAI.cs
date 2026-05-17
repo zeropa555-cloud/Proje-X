@@ -12,12 +12,10 @@ public class EnemyAI : MonoBehaviour
     public float attackRange = 2.5f;
     public float attackCooldown = 2f;
     public int damage = 15;
-    public float damageWindow = 0.5f; // Hasar verebileceği süre
 
     private float lastAttack;
     private bool isDead = false;
 
-    // BU DEĞİŞKEN EKLENDİ!
     [HideInInspector]
     public bool canDealDamage = false;
 
@@ -41,9 +39,7 @@ public class EnemyAI : MonoBehaviour
 
             if (Time.time >= lastAttack + attackCooldown)
             {
-                lastAttack = Time.time;
-                anim.SetTrigger("Attack");
-                StartCoroutine(AutoDamageWindow()); // Animasyon event unutursan diye güvenlik
+                Attack();
             }
         }
         else if (d <= chaseRange)
@@ -59,26 +55,29 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // Animasyon event olarak da kullanabilirsin, ama unutursan coroutine devrede
-    IEnumerator AutoDamageWindow()
+    void Attack()
     {
-        yield return new WaitForSeconds(0.3f); // Saldırı başlasın
-        canDealDamage = true;
-        yield return new WaitForSeconds(damageWindow);
-        canDealDamage = false;
+        lastAttack = Time.time;
+        anim.SetTrigger("Attack");
+
+        // ⭐ OTOMATİK DAR PENCERE (animasyon event gerekmez!)
+        StartCoroutine(DamageWindow());
     }
 
-    // BU METODU ANİMASYON EVENT OLARAK DA EKLEYEBİLİRSİN
-    public void EnableWeaponDamage() => canDealDamage = true;
-    public void DisableWeaponDamage() => canDealDamage = false;
-
-    // Eski adla da çağrılabilsin (animasyon event uyumluluğu)
-    public void DealDamageToPlayer()
+    IEnumerator DamageWindow()
     {
-        if (isDead || player == null) return;
-        float d = Vector3.Distance(transform.position, player.position);
-        if (d <= attackRange + 0.5f)
-            player.GetComponent<PlayerHealth>()?.TakeDamage(damage);
+        // 1. Silah kalksın (hasar KAPALI)
+        yield return new WaitForSeconds(0.35f);
+
+        // 2. VURUŞ ANI - Sadece 0.2 saniye hasar açık!
+        canDealDamage = true;
+        Debug.Log("🟢 Vuruş anı! Hasar açık (0.2 sn)");
+
+        yield return new WaitForSeconds(0.2f);
+
+        // 3. Hasar KAPANDI - Artık "havada" vuramaz!
+        canDealDamage = false;
+        Debug.Log("🔴 Vuruş bitti. Hasar kapalı.");
     }
 
     public void Die()
