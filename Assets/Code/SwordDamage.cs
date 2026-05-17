@@ -6,35 +6,57 @@ public class SwordDamage : MonoBehaviour
     public float hitCooldown = 0.5f;
     private float lastHit = -999f;
 
-    private bool canDealDamage = false; // BAŞTA KAPALI!
+    [HideInInspector]
+    public bool canDealDamage = false;
 
-    // PlayerCombat'tan çağrılacak - Animasyonun vurduğu anında açılır
     public void EnableDamage()
     {
         canDealDamage = true;
-        Debug.Log("🟢 Kılıç hasar AÇIK");
+        Debug.Log("🟢 EnableDamage() çağrıldı");
     }
 
     public void DisableDamage()
     {
         canDealDamage = false;
-        Debug.Log("🔴 Kılıç hasar KAPALI");
+        Debug.Log("🔴 DisableDamage() çağrıldı");
     }
 
     void OnTriggerEnter(Collider other)
     {
-        // ⛔ Animasyon oynamıyorsa hasar YOK!
-        if (!canDealDamage) return;
+        Debug.Log("⚔️ Kılıç bir şeye değdi: " + other.name + " | Tag: " + other.tag);
 
-        if (!other.CompareTag("Enemy")) return;
-        if (Time.time < lastHit + hitCooldown) return;
+        if (!canDealDamage)
+        {
+            Debug.Log("⛔ canDealDamage FALSE! Hasar verilmiyor.");
+            return;
+        }
 
-        EnemyHealth eh = other.GetComponent < EnemyHealth > ();
+        if (!other.CompareTag("Enemy"))
+        {
+            Debug.Log("❌ Enemy tag'i yok, bu: " + other.tag);
+            return;
+        }
+
+        if (Time.time < lastHit + hitCooldown)
+        {
+            Debug.Log("⏳ Cooldown aktif");
+            return;
+        }
+
+        // DÜŞMANIN ANA OBJESİNDE EnemyHealth ara (child'larda da bakar)
+        EnemyHealth eh = other.GetComponent<EnemyHealth>();
+        if (eh == null) eh = other.GetComponentInParent<EnemyHealth>();
+        if (eh == null) eh = other.GetComponentInChildren<EnemyHealth>();
+
         if (eh != null)
         {
             eh.TakeDamage(damage);
             lastHit = Time.time;
-            Debug.Log("⚔️ Hasar verildi: " + damage);
+            Debug.Log("💥 BAŞARILI! Hasar verildi: " + damage);
+        }
+        else
+        {
+            Debug.LogError("❌ EnemyHealth bulunamadı! " + other.name + " ve üst/alt objelerinde yok!");
         }
     }
 }

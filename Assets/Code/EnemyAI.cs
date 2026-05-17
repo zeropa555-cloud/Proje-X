@@ -13,7 +13,7 @@ public class EnemyAI : MonoBehaviour
     public float attackCooldown = 2f;
     public int damage = 15;
 
-    private float lastAttack;
+    private float lastAttack = -999f;
     private bool isDead = false;
 
     [HideInInspector]
@@ -22,8 +22,8 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        agent = GetComponent < NavMeshAgent > ();
-        anim = GetComponent < Animator > ();
+        agent = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
@@ -39,7 +39,9 @@ public class EnemyAI : MonoBehaviour
 
             if (Time.time >= lastAttack + attackCooldown)
             {
-                Attack();
+                lastAttack = Time.time;
+                anim.SetTrigger("Attack");
+                StartCoroutine(DamageWindow());
             }
         }
         else if (d <= chaseRange)
@@ -53,37 +55,43 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = true;
             anim.SetBool("IsWalking", false);
         }
-    }
 
-    void Attack()
-    {
-        lastAttack = Time.time;
-        anim.SetTrigger("Attack");
-
-        // ⭐ OTOMATİK DAR PENCERE (animasyon event gerekmez!)
-        StartCoroutine(DamageWindow());
+        // ⬇️ YENİ: Düşman her zaman oyuncuya dönsün!
+        if (player != null && !isDead)
+        {
+            Vector3 dir = player.position - transform.position;
+            dir.y = 0;
+            if (dir != Vector3.zero)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 8f);
+            }
+        }
     }
 
     IEnumerator DamageWindow()
     {
-        // 1. Silah kalksın (hasar KAPALI)
-        yield return new WaitForSeconds(0.35f);
-
-        // 2. VURUŞ ANI - Sadece 0.2 saniye hasar açık!
+        yield return new WaitForSeconds(0.3f);
         canDealDamage = true;
-        Debug.Log("🟢 Vuruş anı! Hasar açık (0.2 sn)");
-
         yield return new WaitForSeconds(0.2f);
-
-        // 3. Hasar KAPANDI - Artık "havada" vuramaz!
         canDealDamage = false;
-        Debug.Log("🔴 Vuruş bitti. Hasar kapalı.");
+    }
+
+    public void EnableWeaponDamage() => canDealDamage = true;
+    public void DisableWeaponDamage() => canDealDamage = false;
+
+    public void DealDamageToPlayer()
+    {
+        if (isDead || player == null) return;
+        float d = Vector3.Distance(transform.position, player.position);
+        if (d <= attackRange + 0.5f)
+            player.GetComponent<PlayerHealth>()?.TakeDamage(damage);
     }
 
     public void Die()
     {
         isDead = true;
         agent.isStopped = true;
-        GetComponent < Collider > ().enabled = false;
+        GetComponent<Collider>().enabled = false;
     }
 }

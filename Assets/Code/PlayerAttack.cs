@@ -1,10 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 public class PlayerCombat : MonoBehaviour
 {
     public Animator swordAnimator;
-    public SwordDamage swordDamage; // Inspector'dan KILIÇ objesini sürükle!
+    public SwordDamage swordDamage; // Inspector'dan KILIÃ‡ objesini sÃ¼rÃ¼kle!
     private bool isAttacking = false;
 
     void Update()
@@ -20,27 +20,30 @@ public class PlayerCombat : MonoBehaviour
         isAttacking = true;
         swordAnimator.SetTrigger("Attack");
 
-        // Animasyon süresini al
-        float animLength = swordAnimator.GetCurrentAnimatorStateInfo(0).length;
+        // 1. KÄ±lÄ±Ã§ kalkana kadar bekle (sabit 0.3 saniye)
+        yield return new WaitForSeconds(0.3f);
 
-        // 1. Animasyonun baþýnda hasar KAPALI (zaten kapalý)
-        yield return new WaitForSeconds(animLength * 0.25f); // Kýlýç kalkana kadar bekle
-
-        // 2. VURUÞ ANI - Hasar AÇILIR
+        // 2. HASAR AÃ‡IK (sabit 0.4 saniye)
         if (swordDamage != null)
+        {
             swordDamage.EnableDamage();
+            Debug.Log("ðŸŸ¢ KÄ±lÄ±Ã§ hasar AÃ‡IK");
+        }
 
-        // 3. Vuruþ penceresi (kýlýç düþmana deðecek kadar süre)
-        yield return new WaitForSeconds(animLength * 0.3f);
+        yield return new WaitForSeconds(0.4f);
 
-        // 4. Hasar KAPANIR - Artýk vuramaz
+        // 3. HASAR KAPALI
         if (swordDamage != null)
+        {
             swordDamage.DisableDamage();
+            Debug.Log("ðŸ”´ KÄ±lÄ±Ã§ hasar KAPALI");
+        }
 
-        // 5. Animasyonun bitmesini bekle
-        yield return new WaitForSeconds(animLength * 0.45f);
+        // 4. Animasyon bitene kadar bekle (toplam 1 saniye olsun)
+        yield return new WaitForSeconds(0.3f);
 
         swordAnimator.ResetTrigger("Attack");
         isAttacking = false;
+        Debug.Log("âœ… SaldÄ±rÄ± bitti");
     }
 }
