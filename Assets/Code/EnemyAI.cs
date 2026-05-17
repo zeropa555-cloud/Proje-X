@@ -1,5 +1,6 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -7,46 +8,48 @@ public class EnemyAI : MonoBehaviour
     private NavMeshAgent agent;
     private Animator anim;
 
-    public float chaseRange = 12f;   // Takip mesafesi
-    public float attackRange = 2f;   // Saldýrý mesafesi
-    public float attackCooldown = 2f; // Saldýrý aralýðý
+    public float chaseRange = 12f;
+    public float attackRange = 2f;
+    public float attackCooldown = 2f;
+    public float damageWindowDuration = 0.5f; // Hasar verebileceÄŸi sÃ¼re (saniye)
 
     private float lastAttackTime;
     private bool isDead = false;
 
+    [HideInInspector]
+    public bool canDealDamage = false;
+
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
+
         agent = GetComponent < NavMeshAgent > ();
         anim = GetComponent < Animator > ();
     }
 
     void Update()
     {
-        if (isDead) return;
+        if (isDead || player == null) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // 1. Saldýrý mesafesindeyse
         if (distance <= attackRange)
         {
-            agent.isStopped = true; // Dur
+            agent.isStopped = true;
             anim.SetBool("IsWalking", false);
 
-            // Saldýrý cooldown'ý geçtiyse vur
             if (Time.time >= lastAttackTime + attackCooldown)
             {
                 Attack();
             }
         }
-        // 2. Takip mesafesindeyse
         else if (distance <= chaseRange)
         {
             agent.isStopped = false;
-            agent.SetDestination(player.position); // Player'a git
-            anim.SetBool("IsWalking", true); // Yürüme animasyonu
+            agent.SetDestination(player.position);
+            anim.SetBool("IsWalking", true);
         }
-        // 3. Çok uzaktaysa
         else
         {
             agent.isStopped = true;
@@ -57,22 +60,39 @@ public class EnemyAI : MonoBehaviour
     void Attack()
     {
         lastAttackTime = Time.time;
-        anim.SetTrigger("Attack"); // Saldýrý animasyonu
+        anim.SetTrigger("Attack");
+        StartCoroutine(AutoDamageWindow());
     }
 
-    // BU METODU DÜÞMAN SALDIRI ANIMASYONUNUN ORTASINA EVENT OLARAK EKLE!
-    public void DealDamageToPlayer()
+    // Animasyon event yerine otomatik hasar penceresi (gÃ¼venlik)
+    IEnumerator AutoDamageWindow()
     {
-        if (player != null && !isDead)
-        {
-            player.GetComponent<PlayerHealth>()?.TakeDamage(15);
-        }
+        yield return new WaitForSeconds(0.2f); // SaldÄ±rÄ± baÅŸlasÄ±n diye bekle
+        canDealDamage = true;
+        Debug.Log("ðŸŸ¢ DÃ¼ÅŸman hasar verebilir!");
+
+        yield return new WaitForSeconds(damageWindowDuration);
+        canDealDamage = false;
+        Debug.Log("ðŸ”´ DÃ¼ÅŸman hasar veremez!");
+    }
+
+    // BU 2 METODU YÄ°NE DE ANÄ°MASYON EVENT OLARAK EKLERSEN DAHA KESÄ°N OLUR:
+    public void EnableWeaponDamage()
+    {
+        canDealDamage = true;
+        Debug.Log("ðŸŸ¢ Event: EnableWeaponDamage");
+    }
+
+    public void DisableWeaponDamage()
+    {
+        canDealDamage = false;
+        Debug.Log("ðŸ”´ Event: DisableWeaponDamage");
     }
 
     public void Die()
     {
         isDead = true;
         agent.isStopped = true;
-        GetComponent < Collider > ().enabled = false; // Çarpýþmayý kapat
+        GetComponent < Collider > ().enabled = false;
     }
 }

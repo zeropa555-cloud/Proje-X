@@ -6,9 +6,15 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 100;
     private int currentHealth;
 
-    public Slider healthBar; // Inspector'dan UI Slider'ı sürükle
-    public Gradient healthGradient; // Renk değişimi için (yeşil→sarı→kırmızı)
-    public Image fillImage; // Slider'ın içindeki Fill Area > Fill objesi
+    public Slider healthBar;
+    public Gradient healthGradient;
+    public Image fillImage;
+
+    void Awake()
+    {
+        // SAHNE DEĞİŞSE BİLE YOK OLMA! (GameManager seni bulabilsin diye)
+        DontDestroyOnLoad(gameObject);
+    }
 
     void Start()
     {
@@ -16,11 +22,23 @@ public class PlayerHealth : MonoBehaviour
         UpdateHealthUI();
     }
 
+    // GameManager'ın canı okuması için
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    // GameManager'ın canı geri yüklemesi için
+    public void SetHealth(int health)
+    {
+        currentHealth = Mathf.Clamp(health, 0, maxHealth);
+        UpdateHealthUI();
+    }
+
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // 0'ın altına düşmesin
-
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthUI();
 
         if (currentHealth <= 0)
@@ -34,8 +52,6 @@ public class PlayerHealth : MonoBehaviour
         if (healthBar != null)
         {
             healthBar.value = currentHealth;
-
-            // Renk değişimi
             if (fillImage != null && healthGradient != null)
             {
                 fillImage.color = healthGradient.Evaluate(healthBar.normalizedValue);
@@ -46,8 +62,6 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Öldün kanka!");
-        // Buraya ölüm animasyonu, ekran kararma, restart menüsü falan eklersin
-        // Şimdilik karakteri devre dışı bırakalım:
         gameObject.SetActive(false);
     }
 }

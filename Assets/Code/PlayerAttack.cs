@@ -3,34 +3,25 @@ using System.Collections;
 
 public class PlayerCombat : MonoBehaviour
 {
-    public Animator swordAnimator; // Inspector'dan kýlýcýn Animator'unu sürükle
-
-    private bool isActionPlaying = false; // Spam korumasý
+    public Animator swordAnimator;
+    private bool isAttacking = false;
 
     void Update()
     {
-        // Sol týk = Saldýrý (Mouse 0)
-        if (Input.GetMouseButtonDown(0) && !isActionPlaying)
+        if (Input.GetMouseButtonDown(0) && !isAttacking)
         {
-            StartCoroutine(PlayAction("Attack"));
-        }
-
-        // Sað týk = Blok / Savunma (Mouse 1)
-        if (Input.GetMouseButtonDown(1) && !isActionPlaying)
-        {
-            StartCoroutine(PlayAction("Block"));
+            StartCoroutine(PlayAttack());
         }
     }
 
-    IEnumerator PlayAction(string triggerName)
+    IEnumerator PlayAttack()
     {
-        isActionPlaying = true;
-        swordAnimator.SetTrigger(triggerName);
+        isAttacking = true;
+        swordAnimator.SetTrigger("Attack");
 
-        // Animasyon bitene kadar bekle
         yield return new WaitForSeconds(swordAnimator.GetCurrentAnimatorStateInfo(0).length);
 
-        swordAnimator.ResetTrigger(triggerName);
-        isActionPlaying = false;
+        swordAnimator.ResetTrigger("Attack");
+        isAttacking = false;
     }
 }

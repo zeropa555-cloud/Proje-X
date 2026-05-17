@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -13,15 +13,18 @@ public class EnemyHealth : MonoBehaviour
         currentHealth = maxHealth;
         anim = GetComponent < Animator > ();
         enemyAI = GetComponent < EnemyAI > ();
+        Debug.Log("👹 Düşman canı: " + currentHealth);
     }
 
     public void TakeDamage(int damage)
     {
-        if (currentHealth <= 0) return; // �l�yken hasar almas�n
+        Debug.Log("💔 EnemyHealth.TakeDamage çağrıldı! Hasar: " + damage);
+
+        if (currentHealth <= 0) return;
 
         currentHealth -= damage;
+        Debug.Log("👹 Kalan can: " + currentHealth);
 
-        // Hasar alma animasyonu
         anim.SetTrigger("Hit");
 
         if (currentHealth <= 0)
@@ -32,8 +35,9 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
-        enemyAI?.Die(); // AI'yi kapat
-        anim.SetTrigger("Die"); // �l�m animasyonu
-        Destroy(gameObject, 3f); // 3 saniye sonra yok ol
+        Debug.Log("💀 Düşman öldü!");
+        enemyAI?.Die();
+        anim.SetTrigger("Die");
+        Destroy(gameObject, 3f);
     }
 }
