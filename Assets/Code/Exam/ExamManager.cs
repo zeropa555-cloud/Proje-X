@@ -37,7 +37,6 @@ public class ExamManager : MonoBehaviour
 
              
             if (soru.toggleA != null && soru.toggleA.isOn) secilenSik = "A";
-            else if (soru.toggleA != null && soru.toggleA.isOn) secilenSik = "A";
             else if (soru.toggleB != null && soru.toggleB.isOn) secilenSik = "B";
             else if (soru.toggleC != null && soru.toggleC.isOn) secilenSik = "C";
 
@@ -59,7 +58,17 @@ public class ExamManager : MonoBehaviour
          
         Debug.Log($"Sınav Sonucu -> Doğru: {dogruSayisi} | Yanlış: {yanlisSayisi} | Boş: {bosSayisi} / Toplam: {toplamSoru}");
 
-        
+
+        if (GameManager.Instance != null)
+        {
+            if (toplamSoru > 0 && dogruSayisi == toplamSoru)
+            {
+                GameManager.Instance.MarkCurrentSceneCompleted();
+            }
+
+            GameManager.Instance.GoToNextLevel();
+        }
+
         SınavıKapat();
     }
 
